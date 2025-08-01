@@ -1,22 +1,29 @@
 <?php
-$correct_user = "admin";
-$correct_pass = "password123";
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $input_user = trim($_POST['username'] ?? '');
+    $input_pass = trim($_POST['password'] ?? '');
+    $found = false;
 
-    if ($username === $correct_user && $password === $correct_pass) {
-        // Optional: Redirect to another page
-        // header("Location: welcome.html");
-        // exit();
+    if (file_exists("creds.txt")) {
+        $lines = file("creds.txt", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-        echo "<h2>✅ Login Successful!</h2>";
+        foreach ($lines as $line) {
+            list($user, $pass) = explode(":", $line);
+            if (trim($user) === $input_user && trim($pass) === $input_pass) {
+                $found = true;
+                break;
+            }
+        }
+
+        if ($found) {
+            echo "<h2 style='color:green;'>✅ Login Successful!</h2>";
+        } else {
+            echo "<h2 style='color:red;'>❌ Invalid username or password</h2>";
+        }
     } else {
-        echo "<h2>❌ Invalid credentials!</h2>";
-        echo "<a href='login.html'>Go back</a>";
+        echo "<h3 style='color:red;'>⚠️ creds.txt not found</h3>";
     }
 } else {
-    echo "<h3>Access Denied</h3>";
+    echo "<h3>⛔ Direct access not allowed</h3>";
 }
 ?>
